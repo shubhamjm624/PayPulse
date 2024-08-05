@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  email       String      @unique
+  name        String?
+  role        String
+  address     String?
+  phone       String?
+  position    String?
+  company     String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  dashboards  Dashboard[]
+  employerContracts   Contract[]  @relation("EmployerContracts")
+  employeeContracts   Contract[]  @relation("EmployeeContracts")
+  signatures  Signature[]
+  employerPayrolls    Payroll[]   @relation("EmployerPayrolls")
+  employeePayrolls    Payroll[]   @relation("EmployeePayrolls")
+  employerPayments    Payment[]   @relation("PayerPayments")
+  employeePayments    Payment[]   @relation("PayeePayments")
+  compliances Compliance[]
+  taxes       Tax[]
+  notifications Notification[]
+  emailLogs   EmailLog[]
+  relocations Relocation[]
+}
+
+model Dashboard {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  widgets   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Contract {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  employerId    String
+  employeeId    String
+  title         String
+  description   String
+  contractType  String
+  startDate     DateTime
+  endDate       DateTime
+  terms         Json
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  employer      User     @relation("EmployerContracts", fields: [employerId], references: [id])
+  employee      User     @relation("EmployeeContracts", fields: [employeeId], references: [id])
+  signatures    Signature[]
+  payrolls      Payroll[]
+  compliances   Compliance[]
+  taxes         Tax[]
+}
+
+model Signature {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  contractId String
+  userId    String
+  signature String
+  signedAt  DateTime
+  contract  Contract @relation(fields: [contractId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Payroll {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  employerId  String
+  employeeId  String
+  contractId  String
+  salary      Float
+  bonuses     Float?
+  deductions  Float?
+  netPay      Float
+  currency    String
+  paymentDate DateTime
+  status      String
+  payslip     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  employer    User     @relation("EmployerPayrolls", fields: [employerId], references: [id])
+  employee    User     @relation("EmployeePayrolls", fields: [employeeId], references: [id])
+  contract    Contract @relation(fields: [contractId], references: [id])
+}
+
+model Payment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  payerId       String
+  payeeId       String
+  amount        Float
+  currency      String
+  paymentMethod String
+  status        String
+  transactionId String
+  exchangeRate  Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  payer         User     @relation("PayerPayments", fields: [payerId], references: [id])
+  payee         User     @relation("PayeePayments", fields: [payeeId], references: [id])
+}
+
+model Compliance {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String
+  contractId     String
+  country        String
+  complianceIssues Json
+  documents      Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  contract       Contract @relation(fields: [contractId], references: [id])
+}
+
+model Tax {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String
+  contractId   String
+  taxForm      String
+  taxAmount    Float
+  currency     String
+  filedDate    DateTime
+  documents    Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  contract     Contract @relation(fields: [contractId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  message   String
+  type      String
+  status    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model EmailLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  emailType String
+  sentAt    DateTime
+  status    String
+  message   String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Relocation {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String
+  currentLocation String
+  newLocation     String
+  relocationDate DateTime
+  visaRequired   Boolean
+  visaDetails    Json
+  housing        Json
+  status         String
+  notes          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+}
