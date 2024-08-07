@@ -21,12 +21,19 @@ const SigninForm = ({ signInWithEmail, clerkError }: SignInFormProps) => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              console.log('Form submitted');
+              
               const target = e.target as typeof e.target & {
                 email: { value: string };
                 password: { value: string };
               };
+              
               const email = target.email.value;
               const password = target.password.value;
+              
+              console.log('Email:', email);
+              console.log('Password:', password);
+              
               signInWithEmail({ emailAddress: email, password: password });
             }}
           >
@@ -38,6 +45,7 @@ const SigninForm = ({ signInWithEmail, clerkError }: SignInFormProps) => {
                 placeholder="Email address"
                 type="email"
                 required
+                onChange={(e) => console.log('Email input changed:', e.target.value)}
               />
             </div>
             <div className="mb-6">
@@ -48,6 +56,7 @@ const SigninForm = ({ signInWithEmail, clerkError }: SignInFormProps) => {
                 placeholder="Password"
                 type="password"
                 required
+                onChange={(e) => console.log('Password input changed:', e.target.value)}
               />
             </div>
             {clerkError && (

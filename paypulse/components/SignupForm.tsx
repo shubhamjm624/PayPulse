@@ -1,3 +1,4 @@
+// app/components/SignupForm.tsx
 import Link from "next/link";
 import { useState } from "react";
 
@@ -5,7 +6,7 @@ interface SignUpFormProps {
   signUpWithEmail: (data: {
     emailAddress: string;
     password: string;
-    name: string;
+    username: string; // Updated field name
     role: string;
     address?: string;
     phone?: string;
@@ -16,11 +17,10 @@ interface SignUpFormProps {
 }
 
 const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
-    
   const [formState, setFormState] = useState({
-    email: "",
+    emailAddress: "",
     password: "",
-    name: "",
+    username: "", // Updated field name
     role: "",
     address: "",
     phone: "",
@@ -28,15 +28,18 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
     company: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    console.log(`handleChange - name: ${name}, value: ${value}`);
     setFormState({
       ...formState,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("handleSubmit - formState:", formState);
     signUpWithEmail(formState);
   };
 
@@ -46,12 +49,12 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
         <h1 className="mb-6 text-3xl font-semibold text-white">Sign Up</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            name="email"
+            name="emailAddress"
             className="w-full px-3 py-2 text-sm text-white bg-black border-b-2 border-gray-700 focus:border-white focus:outline-none placeholder-gray-400"
             placeholder="Email address"
             type="email"
             required
-            value={formState.email}
+            value={formState.emailAddress}
             onChange={handleChange}
           />
           <input
@@ -64,26 +67,28 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
             onChange={handleChange}
           />
           <input
-            name="name"
+            name="username" // Updated field name
             className="w-full px-3 py-2 text-sm text-white bg-black border-b-2 border-gray-700 focus:border-white focus:outline-none placeholder-gray-400"
-            placeholder="Name"
+            placeholder="Username" // Updated placeholder
             type="text"
-            value={formState.name}
+            value={formState.username}
             onChange={handleChange}
           />
-          <input
+          <select
             name="role"
             className="w-full px-3 py-2 text-sm text-white bg-black border-b-2 border-gray-700 focus:border-white focus:outline-none placeholder-gray-400"
-            placeholder="Role"
-            type="text"
             required
             value={formState.role}
             onChange={handleChange}
-          />
+          >
+            <option value="" disabled>Select role</option>
+            <option value="Employee">Employee</option>
+            <option value="Employer">Employer</option>
+          </select>
           <input
             name="address"
             className="w-full px-3 py-2 text-sm text-white bg-black border-b-2 border-gray-700 focus:border-white focus:outline-none placeholder-gray-400"
-            placeholder="Address"
+            placeholder="Address (use map utility)"
             type="text"
             value={formState.address}
             onChange={handleChange}
@@ -91,7 +96,7 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
           <input
             name="phone"
             className="w-full px-3 py-2 text-sm text-white bg-black border-b-2 border-gray-700 focus:border-white focus:outline-none placeholder-gray-400"
-            placeholder="Phone"
+            placeholder="Phone (e.g., +91 95798 20828)"
             type="text"
             value={formState.phone}
             onChange={handleChange}
