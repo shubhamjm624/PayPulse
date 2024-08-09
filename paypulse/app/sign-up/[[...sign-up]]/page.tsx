@@ -84,19 +84,30 @@ const Signup = () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
 
-        // API call to create the user in Prisma MongoDB
+        // Assuming formData contains an `emailAddress` field
+        const { emailAddress, username, ...otherData } = formData;
+
+        // Create a new object with `email` instead of `emailAddress`
+        const updatedFormData = {
+          email: emailAddress,  // Map `emailAddress` to `email`
+          name : username,
+          ...otherData          // Include the rest of the formData fields
+        };
+
+        // here in below fetch request , in formaData , instead of emailAddress , use email
         const response = await fetch("/api/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(updatedFormData),
         });
 
         if (response.ok) {
           router.push("/");
         } else {
           const errorData = await response.json();
+          console.log("Signup not complete, errorData :", JSON.stringify(errorData));
           setClerkError(errorData.message || "Failed to create user in the database.");
         }
       } else {
